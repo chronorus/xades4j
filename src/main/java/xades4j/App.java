@@ -1,8 +1,14 @@
 package xades4j;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import com.cavium.key.CaviumRSAPrivateKey;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.apache.log4j.Logger;
 //import org.apache.log4j.BasicConfigurator;
 public class App {
@@ -20,11 +26,13 @@ public class App {
 	private static String pkcs12Password;
 
 	private static final String CONFIG_FILE_PATH = "src/main/resources/conf/etax-xades.properties";
+	private static Logger logger = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
         XadesBesSigner signer = new XadesBesSigner();
 
 		try {
+			Authentication.loginWithExplicitCredentials("example_user", "isylzjko");
 			System.out.println("==============\tSet Signer and its profile\t==============");
 			loadConfig(CONFIG_FILE_PATH);
 

@@ -130,11 +130,11 @@
             </ram:SpecifiedLineTradeSettlement>
         </ram:IncludedSupplyChainTradeLineItem>
     </rsm:SupplyChainTradeTransaction>
-<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="xmldsig-13284759-9c33-42ec-aa9c-e13e80113fe8">
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="xmldsig-b76dd418-fa12-40f4-b8be-8a4b1a2fc914">
 <ds:SignedInfo>
 <ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></ds:CanonicalizationMethod>
 <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"></ds:SignatureMethod>
-<ds:Reference Id="xmldsig-13284759-9c33-42ec-aa9c-e13e80113fe8-ref0" URI="">
+<ds:Reference Id="xmldsig-b76dd418-fa12-40f4-b8be-8a4b1a2fc914-ref0" URI="">
 <ds:Transforms>
 <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></ds:Transform>
 </ds:Transforms>
@@ -142,21 +142,21 @@
 <ds:DigestValue>eBvSNIqSOCUHqU+DQ4Q3kaetK3FD593qA21uchK8sbYo1JPtNKGWq5SPlgTBGXL8m2kAPqpOsBxs&#xD;
 bv1/g4C9yQ==</ds:DigestValue>
 </ds:Reference>
-<ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xmldsig-13284759-9c33-42ec-aa9c-e13e80113fe8-signedprops">
+<ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xmldsig-b76dd418-fa12-40f4-b8be-8a4b1a2fc914-signedprops">
 <ds:Transforms>
 <ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></ds:Transform>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod>
-<ds:DigestValue>o66uv2u56PGkEpSuooAIIQJwj1lcy6uEKQ8R9ktqDgVNfnXcmsE1logXRqBmXT3JlgKfaTVE9lGF&#xD;
-15IDThwQnw==</ds:DigestValue>
+<ds:DigestValue>IEq8oZznwytDwrk731GzYJUyvfdnumEr/D0vSslfixwPXehczve4j/R5Z0JKZ02WCaIYOtZiHq8L&#xD;
+rPVElkUlQQ==</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
-<ds:SignatureValue Id="xmldsig-13284759-9c33-42ec-aa9c-e13e80113fe8-sigvalue">
-c+y0VsW+4mH5TkiGoTkKyPoYjyo6tlXuT6q9UgrgEqQ6TRS4VyiEcPc3Uv0VosPBVN8gM1KM6aGK&#xD;
-8iGvvTsxHoUfkpfnZ9VjXEBHMAz4UDakIS/GtDBuA2kIoOlsjPzes2O6Ir9bJFRCZ9CXCYCRAaTj&#xD;
-fidP2xYu5tE7t2vc2OSXZ0Wkga9c8qYgCRbN70DgjZC7Ck75p+ue2w4Shk9W1reMHS3NdsiqNP5j&#xD;
-ycNMCblgSLLxRSiZ0k8JPcLqNeCzaMRmMi4zFpANshN5yjUB0h627WGlfvqDR0o9XIlQHFxoBGIM&#xD;
-6mGos05mH4ni07DV6oyMqpyBZTvS/R8Q94W3cA==
+<ds:SignatureValue Id="xmldsig-b76dd418-fa12-40f4-b8be-8a4b1a2fc914-sigvalue">
+j9jHQ4uztdQ3W0QZxcYlWs7vSYwRqaRxFIyci0rIUk0LIhT8ZTIQGIo9ou8kgpOc4coQC2V6RkDL&#xD;
+VohCMEIquBbY3VS+YHa0L138PBEytmxaRBJieoAlBOwt3UOFN85o5KBveOaKZzXL67QzjkskBGvs&#xD;
+r9nwmzEXSyj/D3KpWKvUQ60mOx3WxQmjTedltSbFThjc+ZoFLjh46Fa08hyeBWzShIuA+g2wYyeT&#xD;
+vc4v2ZQcGCe/q54WS5yHNWGXzuWNRLgeK7WBV8Tj3S/rVMN/srgvtk9Szx9UMDxkysQOg/HOyJFT&#xD;
+/gTAhtCC5aSNPaI8aDYTX1KAqMLwoCbchi4joA==
 </ds:SignatureValue>
 <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:X509Data>
@@ -195,6 +195,6 @@ VPJLMfqvwhh4V1a+9sQtsRDugqPhzk00/DrI0byUjl65
 <ds:X509SubjectName>cn=Code Signing Certificate,o=Electronic Transactions Development Agency,c=TH</ds:X509SubjectName>
 </ds:X509Data>
 </ds:KeyInfo>
-<ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#" Target="#xmldsig-13284759-9c33-42ec-aa9c-e13e80113fe8"><xades:SignedProperties Id="xmldsig-13284759-9c33-42ec-aa9c-e13e80113fe8-signedprops"><xades:SignedSignatureProperties><xades:SigningTime>2020-10-06T22:08:15.426+07:00</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod><ds:DigestValue>1r8x/T+ReH+ehYxWyrRkILA2U0whmsLYLrewFjuhiTGSLQX7RchTPF0eZJvhPihlaIGa7xBMzS58
+<ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#" Target="#xmldsig-b76dd418-fa12-40f4-b8be-8a4b1a2fc914"><xades:SignedProperties Id="xmldsig-b76dd418-fa12-40f4-b8be-8a4b1a2fc914-signedprops"><xades:SignedSignatureProperties><xades:SigningTime>2020-10-06T22:55:21.912+07:00</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512"></ds:DigestMethod><ds:DigestValue>1r8x/T+ReH+ehYxWyrRkILA2U0whmsLYLrewFjuhiTGSLQX7RchTPF0eZJvhPihlaIGa7xBMzS58
 iILPkh71MA==</ds:DigestValue></xades:CertDigest><xades:IssuerSerial><ds:X509IssuerName>cn=TeDA CA for Testing,ou=Electronic Transactions Development Agency (Public Organization),o=Ministry of Information and Communication Technology,c=th</ds:X509IssuerName><ds:X509SerialNumber>8867190820250679169</ds:X509SerialNumber></xades:IssuerSerial></xades:Cert></xades:SigningCertificate></xades:SignedSignatureProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object>
 </ds:Signature></rsm:TaxInvoice_CrossIndustryInvoice>

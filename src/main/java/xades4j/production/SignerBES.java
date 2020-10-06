@@ -19,8 +19,16 @@ package xades4j.production;
 import org.apache.xml.security.transforms.Transforms;
 import xades4j.properties.QualifyingProperties;
 import xades4j.properties.DataObjectDesc;
+
+import com.cavium.key.CaviumRSAPrivateKey;
 import com.google.inject.Inject;
+
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +51,7 @@ import xades4j.properties.QualifyingProperty;
 import xades4j.properties.SignedSignatureProperty;
 import xades4j.properties.SigningCertificateProperty;
 import xades4j.properties.UnsignedSignatureProperty;
+import xades4j.KeyStoreHSM;
 import xades4j.UnsupportedAlgorithmException;
 import xades4j.XAdES4jException;
 import xades4j.XAdES4jXMLSigException;
@@ -64,13 +73,12 @@ import xades4j.xml.marshalling.algorithms.AlgorithmsParametersMarshallingProvide
 
 /**
  * Base logic for producing XAdES signatures (XAdES-BES).
+ * 
  * @author Luís
  */
-class SignerBES implements XadesSigner
-{
+class SignerBES implements XadesSigner {
 
-    static
-    {
+    static {
         Init.initXMLSec();
     }
     /**/
@@ -86,25 +94,16 @@ class SignerBES implements XadesSigner
     private final QualifyingPropertiesProcessor qualifPropsProcessor;
 
     @Inject
-    protected SignerBES(
-            KeyingDataProvider keyingProvider,
-            AlgorithmsProviderEx algorithmsProvider,
-            BasicSignatureOptions basicSignatureOptions,
-            SignedDataObjectsProcessor dataObjectDescsProcessor,
-            SignaturePropertiesProvider signaturePropsProvider,
-            DataObjectPropertiesProvider dataObjPropsProvider,
-            PropertiesDataObjectsGenerator propsDataObjectsGenerator,
-            SignedPropertiesMarshaller signedPropsMarshaller,
+    protected SignerBES(KeyingDataProvider keyingProvider, AlgorithmsProviderEx algorithmsProvider,
+            BasicSignatureOptions basicSignatureOptions, SignedDataObjectsProcessor dataObjectDescsProcessor,
+            SignaturePropertiesProvider signaturePropsProvider, DataObjectPropertiesProvider dataObjPropsProvider,
+            PropertiesDataObjectsGenerator propsDataObjectsGenerator, SignedPropertiesMarshaller signedPropsMarshaller,
             UnsignedPropertiesMarshaller unsignedPropsMarshaller,
             AlgorithmsParametersMarshallingProvider algorithmsParametersMarshaller,
-            X500NameStyleProvider x500NameStyleProvider)
-    {
-        if (ObjectUtils.anyNull(
-                keyingProvider, algorithmsProvider, basicSignatureOptions,
-                signaturePropsProvider, dataObjPropsProvider, propsDataObjectsGenerator,
-                signedPropsMarshaller, unsignedPropsMarshaller, algorithmsParametersMarshaller,
-                x500NameStyleProvider))
-        {
+            X500NameStyleProvider x500NameStyleProvider) {
+        if (ObjectUtils.anyNull(keyingProvider, algorithmsProvider, basicSignatureOptions, signaturePropsProvider,
+                dataObjPropsProvider, propsDataObjectsGenerator, signedPropsMarshaller, unsignedPropsMarshaller,
+                algorithmsParametersMarshaller, x500NameStyleProvider)) {
             throw new NullPointerException("One or more arguments are null");
         }
 
@@ -115,34 +114,26 @@ class SignerBES implements XadesSigner
         this.unsignedPropsMarshaller = unsignedPropsMarshaller;
         this.algorithmsParametersMarshaller = algorithmsParametersMarshaller;
         this.dataObjectDescsProcessor = dataObjectDescsProcessor;
-        this.keyInfoBuilder = new KeyInfoBuilder(basicSignatureOptions, algorithmsProvider, algorithmsParametersMarshaller, x500NameStyleProvider);
+        this.keyInfoBuilder = new KeyInfoBuilder(basicSignatureOptions, algorithmsProvider,
+                algorithmsParametersMarshaller, x500NameStyleProvider);
         this.qualifPropsProcessor = new QualifyingPropertiesProcessor(signaturePropsProvider, dataObjPropsProvider);
     }
 
     @Override
-    public final XadesSignatureResult sign(
-            SignedDataObjects signedDataObjects,
-            Node parent) throws XAdES4jException
-    {
+    public final XadesSignatureResult sign(SignedDataObjects signedDataObjects, Node parent) throws XAdES4jException {
         return sign(signedDataObjects, parent, SignatureAppendingStrategies.AsLastChild);
     }
 
     @Override
-    public final XadesSignatureResult sign(
-            SignedDataObjects signedDataObjects,
-            Node referenceNode,
-            SignatureAppendingStrategy appendingStrategy) throws XAdES4jException
-    {
-        if (null == referenceNode)
-        {
+    public final XadesSignatureResult sign(SignedDataObjects signedDataObjects, Node referenceNode,
+            SignatureAppendingStrategy appendingStrategy) throws XAdES4jException {
+        if (null == referenceNode) {
             throw new NullPointerException("Reference node node cannot be null");
         }
-        if (null == signedDataObjects)
-        {
+        if (null == signedDataObjects) {
             throw new NullPointerException("References cannot be null");
         }
-        if (signedDataObjects.isEmpty())
-        {
+        if (signedDataObjects.isEmpty()) {
             throw new IllegalArgumentException("Data objects list is empty");
         }
 
@@ -154,16 +145,13 @@ class SignerBES implements XadesSigner
 
         // Signing certificate chain (may contain only the signing certificate).
         List<X509Certificate> signingCertificateChain = this.keyingProvider.getSigningCertificateChain();
-        if (null == signingCertificateChain || signingCertificateChain.isEmpty())
-        {
+        if (null == signingCertificateChain || signingCertificateChain.isEmpty()) {
             throw new SigningCertChainException("Signing certificate not provided");
         }
         X509Certificate signingCertificate = signingCertificateChain.get(0);
 
         // The XMLSignature (ds:Signature).
-        XMLSignature signature = createSignature(
-                signatureDocument,
-                signedDataObjects.getBaseUri(),
+        XMLSignature signature = createSignature(signatureDocument, signedDataObjects.getBaseUri(),
                 signingCertificate.getPublicKey().getAlgorithm());
 
         signature.setId(signatureId);
@@ -172,28 +160,25 @@ class SignerBES implements XadesSigner
         // Process the data object descriptions to get the References and mappings.
         // After this call all the signed data objects References and XMLObjects
         // are added to the signature.
-        Map<DataObjectDesc, Reference> referenceMappings = this.dataObjectDescsProcessor.process(
-                signedDataObjects,
+        Map<DataObjectDesc, Reference> referenceMappings = this.dataObjectDescsProcessor.process(signedDataObjects,
                 signature);
-        
+
         /* ds:KeyInfo */
         this.keyInfoBuilder.buildKeyInfo(signingCertificateChain, signature);
 
         /* QualifyingProperties element */
         // Create the QualifyingProperties element
-        Element qualifyingPropsElem = ElementProxy.createElementForFamily(
-                signature.getDocument(),
+        Element qualifyingPropsElem = ElementProxy.createElementForFamily(signature.getDocument(),
                 QualifyingProperty.XADES_XMLNS, QualifyingProperty.QUALIFYING_PROPS_TAG);
         qualifyingPropsElem.setAttributeNS(null, QualifyingProperty.TARGET_ATTR, '#' + signatureId);
-        qualifyingPropsElem.setAttributeNS(Constants.NamespaceSpecNS, "xmlns:xades141", QualifyingProperty.XADESV141_XMLNS);
+        qualifyingPropsElem.setAttributeNS(Constants.NamespaceSpecNS, "xmlns:xades141",
+                QualifyingProperty.XADESV141_XMLNS);
         // ds:Object to contain QualifyingProperties
         ObjectContainer qPropsXmlObj = new ObjectContainer(signature.getDocument());
         qPropsXmlObj.appendChild(qualifyingPropsElem);
-        try
-        {
+        try {
             signature.appendObject(qPropsXmlObj);
-        } catch (XMLSignatureException ex)
-        {
+        } catch (XMLSignatureException ex) {
             // -> xmlSignature.appendObject(xmlObj): not thrown when signing.
             throw new IllegalStateException(ex);
         }
@@ -204,11 +189,10 @@ class SignerBES implements XadesSigner
         Collection<UnsignedSignatureProperty> fsusp = new ArrayList<UnsignedSignatureProperty>(2);
         getFormatSpecificSignatureProperties(fsssp, fsusp, signingCertificateChain);
         // Gather all the signature and data objects properties.
-        QualifyingProperties qualifProps = qualifPropsProcessor.getQualifyingProperties(
-                signedDataObjects, fsssp, fsusp);
+        QualifyingProperties qualifProps = qualifPropsProcessor.getQualifyingProperties(signedDataObjects, fsssp,
+                fsusp);
 
-        try
-        {
+        try {
             // The signature needs to be appended to the document from now on because
             // property data generation may need to dereference same-document data
             // object references.
@@ -217,14 +201,11 @@ class SignerBES implements XadesSigner
             /* Signed properties */
             // Create the context for signed properties data objects generation.
             PropertiesDataGenerationContext propsDataGenCtx = new PropertiesDataGenerationContext(
-                    signedDataObjects.getDataObjectsDescs(),
-                    referenceMappings,
-                    signatureDocument);
+                    signedDataObjects.getDataObjectsDescs(), referenceMappings, signatureDocument);
             // Generate the signed properties data objects. The data objects structure
             // is verifier in the process.
-            SigAndDataObjsPropertiesData signedPropsData = this.propsDataObjectsGenerator.generateSignedPropertiesData(
-                    qualifProps.getSignedProperties(),
-                    propsDataGenCtx);
+            SigAndDataObjsPropertiesData signedPropsData = this.propsDataObjectsGenerator
+                    .generateSignedPropertiesData(qualifProps.getSignedProperties(), propsDataGenCtx);
             // Marshal the signed properties data to the QualifyingProperties node.
             this.signedPropsMarshaller.marshal(signedPropsData, qualifyingPropsElem);
             Element signedPropsElem = DOMHelper.getFirstChildElement(qualifyingPropsElem);
@@ -239,39 +220,54 @@ class SignerBES implements XadesSigner
             // with its value set to: http://uri.etsi.org/01903#SignedProperties."
 
             String digestAlgUri = algorithmsProvider.getDigestAlgorithmForDataObjsReferences();
-            if (StringUtils.isNullOrEmptyString(digestAlgUri))
-            {
+            if (StringUtils.isNullOrEmptyString(digestAlgUri)) {
                 throw new NullPointerException("Digest algorithm URI not provided");
             }
-            
-            // Use same canonicalization URI as specified in the ds:CanonicalizationMethod for Signature.
+
+            // Use same canonicalization URI as specified in the ds:CanonicalizationMethod
+            // for Signature.
             Algorithm canonAlg = this.algorithmsProvider.getCanonicalizationAlgorithmForSignature();
 
-            try
-            {
+            try {
                 CanonicalizerUtils.checkC14NAlgorithm(canonAlg);
-                Transforms transforms = TransformUtils.createTransforms(canonAlg, this.algorithmsParametersMarshaller, signatureDocument);
+                Transforms transforms = TransformUtils.createTransforms(canonAlg, this.algorithmsParametersMarshaller,
+                        signatureDocument);
 
-                signature.addDocument('#' + signedPropsId, transforms, digestAlgUri, null, QualifyingProperty.SIGNED_PROPS_TYPE_URI);
-            } catch (XMLSignatureException ex)
-            {
+                signature.addDocument('#' + signedPropsId, transforms, digestAlgUri, null,
+                        QualifyingProperty.SIGNED_PROPS_TYPE_URI);
+            } catch (XMLSignatureException ex) {
                 // Seems to be thrown when the digest algorithm is not supported. In
                 // this case, if it wasn't thrown when processing the data objects it
                 // shouldn't be thrown now!
-                throw new UnsupportedAlgorithmException(
-                        "Digest algorithm not supported in the XML Signature provider",
+                throw new UnsupportedAlgorithmException("Digest algorithm not supported in the XML Signature provider",
                         digestAlgUri, ex);
             }
 
             // Apply the signature
-            try
-            {
-                PrivateKey signingKey = keyingProvider.getSigningKey(signingCertificate);
+            try {
+
+                KeyStoreHSM obj = new KeyStoreHSM();
+                CaviumRSAPrivateKey signingKey = obj.getPrivateKey("cpall");
+
+                // PrivateKey signingKey = keyingProvider.getSigningKey(signingCertificate);
                 signature.sign(signingKey);
-            }
-            catch (XMLSignatureException ex)
-            {
+            } catch (XMLSignatureException ex) {
                 throw new XAdES4jXMLSigException(ex.getMessage(), ex);
+            } catch (UnrecoverableKeyException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (CertificateException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (KeyStoreException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
             // Set the ds:SignatureValue id.
             Element sigValueElem = DOMHelper.getFirstDescendant(
